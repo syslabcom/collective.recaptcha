@@ -2,12 +2,10 @@
 from bbb import getSite
 from collective.recaptcha import RecaptchaMessageFactory as _
 from persistent import Persistent
-from plone.registry.interfaces import IRegistry
 from zope import schema
 from zope.annotation import factory
 from zope.annotation import IAttributeAnnotatable
 from zope.component import adapts
-from zope.component import getUtility
 from zope.interface import implements
 from zope.interface import Interface
 
@@ -64,26 +62,10 @@ RecaptchaSettings = factory(RecaptchaSettingsAnnotations)
 
 
 def getRecaptchaSettings():
-    registry = getUtility(IRegistry)
-    if TRY_REGISTRY:
-        # if plone.formwidget.recaptcha is installed, try getting
-        # its settings from the registry
-        try:
-            settings = registry.forInterface(IReCaptchaSettings)
-            if settings.public_key and settings.private_key:
-                return settings
-        except:
-            pass
-    # try getting settings from the registry first
-    try:
-        settings = registry.forInterface(IRecaptchaSettings)
-        if settings.public_key and settings.private_key:
-            return settings
-    except KeyError:
-        # fall back to our storage of an annotation on the site if the settings
-        # haven't been configured
-        site = getSite()
-        return IRecaptchaSettings(site)
+    """ BIGE has p.registry but not p.a.registry, and the pinnings for plone 3
+    are difficult to figure out, so don't try."""
+    site = getSite()
+    return IRecaptchaSettings(site)
 
 
 class RecaptchaSettingsForm(EditForm):
